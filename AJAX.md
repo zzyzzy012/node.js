@@ -2,7 +2,7 @@
 
 ## 1.AJAX 简介
 
-**AJAX (Asynchronous JavaScript and XML) ，异步的JS和XML。**允许服务器异步加载，而不需要刷新页面。
+**AJAX (Asynchronous JavaScript and XML) ，异步的JS和XML。**是一种用于创建异步 Web 应用程序的技术。它允许网页在不重新加载整个页面的情况下，与服务器进行数据交换并更新部分页面内容。
 
 **XML (Extensible Markup Language)可扩展标记语言。**AJAX用来存储和传输数据，标签都是自定义的，而HTML更多是网页展示数据，标签是预定义的。现在更多被JSON取代。
 
@@ -13,6 +13,39 @@ AJAX的优缺点
 3. 没有浏览历史，不能回退🔙
 4. 存在跨域问题
 5. SEO不友好
+
+### 1.1 AJAX 的核心概念
+
+#### 1. 异步通信
+
+- AJAX 的核心是 **异步通信**，即浏览器可以在不阻塞用户操作的情况下，向服务器发送请求并处理响应。
+- 传统的同步请求会阻塞页面，直到服务器返回响应；而 AJAX 允许用户在请求处理过程中继续与页面交互。
+
+#### 2. XMLHttpRequest 对象
+
+- AJAX 的实现依赖于 `XMLHttpRequest` 对象（简称 XHR），它是浏览器提供的 JavaScript API，用于与服务器进行 HTTP 通信。
+- 现代浏览器也支持 `Fetch API`，它是 `XMLHttpRequest` 的替代方案，提供了更强大和灵活的功能。
+
+#### 3. 数据格式
+
+- 虽然 AJAX 的名字中包含 XML，但实际上它可以处理多种数据格式，包括：
+  - **XML**：早期的 AJAX 主要使用 XML 格式。
+  - **JSON**：现代 Web 开发中最常用的数据格式，轻量且易于解析。
+  - **HTML**：直接返回 HTML 片段，用于更新页面内容。
+  - **纯文本**：简单的文本数据。
+
+------
+
+### 1.2 AJAX 的工作原理
+
+1. **创建请求对象**：
+   - 使用 `XMLHttpRequest` 或 `Fetch API` 创建请求对象。
+2. **配置请求**：
+   - 设置请求方法（如 GET、POST）、URL 和是否异步。
+3. **发送请求**：
+   - 向服务器发送请求，可以附带数据（如表单数据、JSON 数据）。
+4. **处理响应**：
+   - 监听请求的状态变化，当服务器返回响应时，处理响应数据并更新页面。
 
 ## 2.HTTP协议
 
@@ -68,9 +101,78 @@ Body:响应体，数据可能是`HTML、JSON...`
 
 ## 3.XMLHttpRequest
 
-**XMLHttpRequest：**浏览器的内置对象，用于向服务器发送 HTTP 请求。
+**XMLHttpRequest：**浏览器的内置对象，用于向服务器发送 HTTP 请求。通过`XMLHttpRequest`可以在不刷新页面的情况下请求特定 URL，获取数据。这允许网页在不影响用户操作的情况下，更新页面的局部内容。
 
-**常用API：**
+`const xhr = XMLHttpRequest()`用于初始化一个 `XMLHttpRequest` 实例对象。
+
+### 3.1 属性
+
+`xhr.onreadystatechange`处理服务器返回的结果。每当`xhr.readyState`发生变化时触发的事件处理程序。
+
+`xhr.readyState`的值可以是 0 到 4，代表请求生命周期的不同阶段。
+
+0：**UNSENT，代理被创建**，但尚未调用`open()`方法。
+
+1：**OPENED（请求已打开）**，`open()` 方法已经被调用。
+
+2：**HEADERS_RECEIVED（已收到标头）**，`send()` 方法已经被调用，并且头部和状态已经可获得。
+
+3：**LOADING（响应正在进行中）**，`responseText` 属性已经包含部分数据。
+
+4：**DONE（请求已完成）**
+
+```js
+xhr.onreadystatechange = function() {
+  if (xhr.readyState === 4 && xhr.status === 200) {
+    console.log(xhr.responseText);
+  }
+};
+```
+
+`xhr.status`
+
+1xx: Informational Responses:请求已被接收并正在处理。
+
+2xx: Successful Responses
+
+3xx: Redirection Responses
+
+4xx: Client Error Responses:表示客户端的请求有错误。
+
+5xx: Server Error Responses：表明服务器未能满足有效请求。
+
+`xhr.statusText`：包含 HTTP 状态码的文本描述（如 "OK" 或 "Not Found"）。
+
+`xhr.response`属性返回响应的正文返回的类型取决于`xhr.responseType`，返回的类型为`ArrayBuffer、Blob、Document、JavaScript Object 或字符串中`的一个。
+
+`responseType` 是 `XMLHttpRequest` 对象的一个属性，用于指定服务器返回数据的类型。它可以设置为以下值：
+
+| `responseType` 值        | 返回类型          | 描述                                                  |
+| ------------------------ | ----------------- | ----------------------------------------------------- |
+| `""`（空字符串，默认值） | `string`          | 返回响应数据为字符串。                                |
+| `"text"`                 | `string`          | 返回响应数据为字符串。                                |
+| `"json"`                 | `JavaScript 对象` | 返回响应数据为解析后的 JavaScript 对象（JSON 格式）。 |
+| `"document"`             | `Document`        | 返回响应数据为 XML 或 HTML 文档对象（DOM 对象）。     |
+| `"arraybuffer"`          | `ArrayBuffer`     | 返回响应数据为二进制数据的 `ArrayBuffer` 对象。       |
+| `"blob"`                 | `Blob`            | 返回响应数据为 `Blob` 对象（二进制大对象，如文件）。  |
+
+`xhr.responseText`请求被发送后，从服务器端返回文本。
+
+`xhr.responseXML`返回一个包含请求检索的 HTML 或 XML 的`Document`。
+
+`xhr.responseURL`返回经过序列化（serialized）的响应 URL，如果该 URL 为空，则返回空字符串。
+
+`xhr.timeout = xxx`请求超时前的时间（以毫秒为单位）。默认值为 0，表示无超时。
+
+`xhr.ontimeout`请求超时时触发事件处理程序。
+
+```js
+xhr.ontimeout = function() {
+  console.log('The request timed out');
+};
+```
+
+### 3.2 实例方法
 
 `xhr.open(method, url, async, user, password)`
 
@@ -84,13 +186,13 @@ xhr.open('GET', 'http://127.0.0.1:80/server', true);
 xhr.open('GET', 'http://127.0.0.1:80/server?user=admin&pwd=123456')
 ```
 
-`xhr.send()`向服务器发送数据。
-
-`xhr.setRequestHeader(header, value)`设置请求头。
+`xhr.setRequestHeader(header, value)`设置 HTTP 请求标头的值。必须在 `open()`之后、`send()`之前调用 `setRequestHeader()` 方法。
 
 ```js
 xhr.setRequestHeader('Content-Type', 'application/json');
 ```
+
+`xhr.send()`发送请求。如果请求是异步的（默认），那么该方法将在请求发送后立即返回。
 
 `xhr.getResponseHeader(header)`返回特定响应头的值。
 
@@ -106,50 +208,63 @@ const headers = xhr.getAllResponseHeaders();
 
 `xhr,abort()`取消仍在进行中的请求。
 
-`xhr.onreadystatechange`处理服务器返回的结果。每当 readyState 发生变化时触发的事件处理程序。readyState 的值可以是 0 到 4，代表请求生命周期的不同阶段。
+### 3.3xhr实例方法例子
 
-1. 0：UNSENT（请求未初始化）
-2. 1：OPENED（请求已打开）
-3. 2：HEADERS_RECEIVED（已收到标头）
-4. 3：LOADING（响应正在进行中）
-5. 4：DONE（请求已完成）
+设置超时时间`xhr.timeout = xxx`
 
-Status
+超时的回调函数`xhr.tmieout = () => {}`
 
-1xx: Informational Responses:请求已被接收并正在处理。
-
-2xx: Successful Responses
-
-3xx: Redirection Responses
-
-4xx: Client Error Responses:表示客户端的请求有错误。
-
-5xx: Server Error Responses：表明服务器未能满足有效请求。
+网络错误的回调函数`xhr.onerror = () => {}`
 
 ```js
-xhr.onreadystatechange = function() {
-  if (xhr.readyState === 4 && xhr.status === 200) {
-    console.log(xhr.responseText);
+const resultDiv = document.querySelector('.result')
+resultDiv.addEventListener('click', () => {
+  const xhr = new XMLHttpRequest()
+  // 设置超时时间
+  xhr.timeout = 2000
+  // 超时的回调函数
+  xhr.timeout = function() {
+    resultDiv.innerHTML = '请求超时'
   }
-};
+  // 服务器响应失败的回调函数
+  xhr.onerror = function() {
+    resultDiv.innerHTML = '服务器响应失败'
+  }
+  xhr.open('GET', 'http://127.0.0.1:80/delay')
+  xhr.send()
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resultDiv.innerHTML = xhr.response
+      }
+    }
+  }
+})
 ```
 
-`xhr.responseText`返回作为字符串格式的响应数据。
+`xhr.abort()`取消请求
 
-`xhr.responseXML`返回XML事件对象的响应数据。
-
-`xhr.timeout`请求超时前的时间（以毫秒为单位）。默认值为 0，表示无超时。
+取消重复请求通过设置一个标识符。
 
 ```js
-xhr.timeout = 5000;
-```
-
-`xhr.ontimeout`请求超时时触发事件处理程序。
-
-```js
-xhr.ontimeout = function() {
-  console.log('The request timed out');
-};
+    const btn = document.querySelector('.btn');
+    // 定义标识符
+    let isSending = false
+    btn.addEventListener('click', function() {
+      const xhr = new XMLHttpRequest();
+      if (isSending) xhr.abort()  // 取消重复请求
+      isSending = true
+      xhr.open('GET', 'http://127.0.0.1:80/repeat')
+      xhr.send()
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          isSending = false
+          if (xhr.status >=200 && xhr.status < 300) {
+            console.log(xhr.responseText)
+          }
+        }
+      }
+    })
 ```
 
 ## 4.post请求
@@ -247,6 +362,80 @@ const reqBtn = document.querySelector('.req-btn')
 
 ## 5.JSON请求
 
+### 5.1 JSON对象
+
+#### 5.1.1 基本概念
+
+**JSON（JavaScript Object Notation）** 是一种轻量级的数据交换格式，广泛用于 Web 开发中传输和存储数据。它基于 JavaScript 的对象语法，但独立于编程语言，几乎所有现代编程语言都支持 JSON 的解析和生成。
+
+JSON 是一种文本格式，用于表示结构化数据，用来序列化对象、数组、数值、字符串、布尔值和`null`。它基于 JavaScript 语法，但与之不同：大部分 JavaScript 不是 JSON。
+
+**JSON 的用途**
+
+- **数据交换**：JSON 是客户端和服务器之间传输数据的常用格式。
+- **配置文件**：许多应用程序使用 JSON 格式存储配置数据。
+
+#### 5.1.2 JSON语法
+
+(1) **对象（Object）**
+
+- 对象用花括号 `{}` 表示，包含一组键值对。
+- 键和值之间用冒号 `:` 分隔，键值对之间用逗号 `,` 分隔。
+- 键必须是字符串，用双引号 `"` 包裹。
+- 值可以是字符串、数字、布尔值、数组、对象或 `null`。
+
+```json
+{
+  "name": "John",
+  "age": 30,
+  "isStudent": false,
+  "address": {
+    "city": "New York",
+    "zip": "10001"
+  },
+  "hobbies": ["reading", "traveling"]
+}
+```
+
+(2) **数组（Array）**
+
+- 数组用方括号 `[]` 表示，包含一组值。
+- 值之间用逗号 `,` 分隔。
+- 值可以是字符串、数字、布尔值、数组、对象或 `null`。
+
+```json
+[
+  "apple",
+  "banana",
+  "orange"
+]
+```
+
+(3) **值（Value）**
+
+- **字符串**：用双引号 `"` 包裹。
+- **数字**：整数或浮点数。
+- **布尔值**：`true` 或 `false`。
+- **数组**：用方括号 `[]` 表示。
+- **对象**：用花括号 `{}` 表示。
+- **null**：表示空值。
+
+```json
+{
+  "name": "Alice",
+  "age": 25,
+  "isEmployed": true,
+  "skills": ["JavaScript", "Python"],
+  "address": null
+}
+```
+
+**解析 JSON**：使用 `JSON.parse()` 将 JSON 字符串转换为 JavaScript 对象。
+
+**生成 JSON**：使用 `JSON.stringify()` 将 JavaScript 对象转换为 JSON 字符串。
+
+### 5.2 JSON请求
+
 浏览器向服务器请求JSON格式数据。
 
 ```js
@@ -288,68 +477,9 @@ JSON响应，`xhr.responseType = 'json'`。
     })
 ```
 
-## 6.xhr常用API
+## 6.三方工具
 
-设置超时时间`xhr.timeout = xxx`
-
-超时的回调函数`xhr.tmieout = () => {}`
-
-网络错误的回调函数`xhr.onerr = () => {}`
-
-```js
-const resultDiv = document.querySelector('.result')
-resultDiv.addEventListener('click', () => {
-  const xhr = new XMLHttpRequest()
-  // 设置超时时间
-  xhr.timeout = 2000
-  // 超时的回调函数
-  xhr.timeout = function() {
-    resultDiv.innerHTML = '请求超时'
-  }
-  // 服务器响应失败的回调函数
-  xhr.onerror = function() {
-    resultDiv.innerHTML = '服务器响应失败'
-  }
-  xhr.open('GET', 'http://127.0.0.1:80/delay')
-  xhr.send()
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4) {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resultDiv.innerHTML = xhr.response
-      }
-    }
-  }
-})
-```
-
-`xhr.abort()`取消请求
-
-取消重复请求通过设置一个标识符。
-
-```js
-    const btn = document.querySelector('.btn');
-    // 定义标识符
-    let isSending = false
-    btn.addEventListener('click', function() {
-      const xhr = new XMLHttpRequest();
-      if (isSending) xhr.abort()  // 取消重复请求
-      isSending = true
-      xhr.open('GET', 'http://127.0.0.1:80/repeat')
-      xhr.send()
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4) {
-          isSending = false
-          if (xhr.status >=200 && xhr.status < 300) {
-            console.log(xhr.responseText)
-          }
-        }
-      }
-    })
-```
-
-## 7.三方工具
-
-### 7.1 jquery
+### 6.1 jquery
 
 ```js
 // jquery
@@ -405,7 +535,7 @@ app.get('/jquery-server', (req, res) => {
 </body>
 ```
 
-### 7.2 axios
+### 6.2 axios
 
 ```js
 // axios
@@ -485,7 +615,7 @@ app.post('/axios-server', (req, res) => {
 </body>
 ```
 
-### 7.3 fetch全局工具
+### 6.3 fetch全局工具
 
 ```js
 // fetch
@@ -520,7 +650,7 @@ app.post('/fetch-server', (req, res) => {
   </script>
 ```
 
-## 8.跨域
+## 7.跨域
 
 **同源策略（Same-Origin Policy）** 是浏览器的一种核心安全机制，用于限制一个网页如何与来自不同源的资源进行交互。
 
@@ -770,7 +900,7 @@ app.use((req, res, next) => {
 
 ------
 
-#### CORS 的注意事项
+#### 8.2.3 CORS 的注意事项
 
 1. **安全性**：
    - 不要随意设置 `Access-Control-Allow-Origin: *`，除非你明确允许所有域访问。
